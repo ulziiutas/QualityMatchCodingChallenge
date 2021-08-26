@@ -271,6 +271,7 @@ def printCantSolveCorruptDataTrend(annotators_answer):
     """
         ===============================================
         Prints the trend between Cant Solve and Corrupt Data options for each annnotators
+        Also, prints the number of cant solve and corrupt data options for each images.
         printCantSolveCorruptDataTrend(annotators_answer)
         ===============================================
 
@@ -279,10 +280,13 @@ def printCantSolveCorruptDataTrend(annotators_answer):
 
         Returns:
             Prints the trend between Cant Solve and Corrupt Data options for each annnotators
+            Also, prints the number of cant solve and corrupt data options for each images.
     """
-   
+    images_with_cant_solve = dict()
+    images_with_corrut_data = dict()
+
     for annotator in annotators_answer: # I am iterating through the annotators
-    
+
         # I am finding the indeces where either the cant_solve or corrupt_data options are used.
         intersection_cant_solve_corrupt_data = np.logical_or(annotators_answer[annotator]['cant_solve_list'] == 1,\
                                                              annotators_answer[annotator]['corrupt_data_list'] == 1)
@@ -291,17 +295,36 @@ def printCantSolveCorruptDataTrend(annotators_answer):
         corrupt_data_list_split = annotators_answer[annotator]['corrupt_data_list'][intersection_cant_solve_corrupt_data]
         cant_solve_list_split = annotators_answer[annotator]['cant_solve_list'][intersection_cant_solve_corrupt_data]
 
+        image_id_cant_solve = annotators_answer[annotator]['image_id'][annotators_answer[annotator]['cant_solve_list'] == 1]
+        image_id_corrupt_data = annotators_answer[annotator]['image_id'][annotators_answer[annotator]['corrupt_data_list'] == 1]
 
-        if len(cant_solve_list_split) != 0: 
+        for ids in image_id_cant_solve:
+            if ids in images_with_cant_solve:
+                images_with_cant_solve[ids] += 1
+            else:
+                images_with_cant_solve[ids] = 1
+
+        for ids in image_id_corrupt_data:
+            if ids in images_with_corrut_data:
+                images_with_corrut_data[ids] += 1
+            else:
+                images_with_corrut_data[ids] = 1
+
+
+        if np.sum(intersection_cant_solve_corrupt_data) != 0: 
             # if there is use case of either options, we find the matching cases of the two options
-
-            simple_matching = np.sum(cant_solve_list_split == corrupt_data_list_split)/len(cant_solve_list_split)
+            simple_matching = np.sum(cant_solve_list_split == corrupt_data_list_split)/len(intersection_cant_solve_corrupt_data)
 
             print("{} - Trend(cant solve-corrupt data): {}\n".format(annotator, simple_matching))
 
         else: # if there is no use case of either options, I print a message
             print("{} - didn't use cant_solve or corrupt_data options\n".format(annotator))
-               
+            
+    for image_id in images_with_cant_solve:
+        print('{} has {} cant_solve options'.format(image_id, images_with_cant_solve[image_id]))
+    for image_id in images_with_corrut_data:
+        print('{} has {} corrupt_data options'.format(image_id, images_with_corrut_data[image_id]))
+        
 def getTrueFalseCountFromReferences(references):
     """
         ===============================================
@@ -510,7 +533,50 @@ def printRecallForAnnotators(annotators_answer):
 
         print('Recall of {} : {}'.format(annotator, recall))
     print('\n')
+    
+def printF1ScoreForAnnotators(annotators_answer):
+    """
+        ===============================================
+        Prints the F1 Score of each annotators
+        printF1ScoreForAnnotators(annotators_answer)
+        ===============================================
 
+        Args:
+            annotators_answer - Dictionary with annotator id as key and answers, cant_solve, corrupt_data, added true_pos, false_pos, false_neg, true_neg as value
+
+        Returns:
+            Prints the F1 Score of each annotators
+    """
+
+    for annotator in annotators_answer: 
+        recall = (annotators_answer[annotator]['true_pos'])\
+        /(annotators_answer[annotator]['true_pos']+\
+          0.5*(annotators_answer[annotator]['false_neg'] + annotators_answer[annotator]['false_pos']))
+
+        print('F1 score of {} : {}'.format(annotator, recall))
+    
+    print('\n')
+    
+def printAUCForAnnotators(roc_auc):
+    """
+        ===============================================
+        Prints the AUC values of each annotators
+        printAUCForAnnotators(roc_auc)
+        ===============================================
+
+        Args:
+            
+            roc_auc - Dictionary of AUC values calculated from sklearn's auc() function for each annotator
+
+        Returns:
+            Prints the AUC values of each annotators
+    """
+
+    for annotator in roc_auc:
+        print('AUC value of {} : {}'.format(annotator, roc_auc[annotator]))
+    
+    print('\n')
+    
 def plotRocCurve(fpr, tpr, roc_auc):
     """
         ===============================================
@@ -547,16 +613,4 @@ def plotRocCurve(fpr, tpr, roc_auc):
             col_idx = 0    
             row_idx += 1
                
-    plt.show()
-               
-               
-               
-               
-               
-               
-               
-               
-               
-               
-               
-               
+    plt.show()          

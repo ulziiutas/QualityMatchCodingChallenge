@@ -60,7 +60,9 @@ def main():
     util.printAccuracyForAnnotators(annotators_answer)
     util.printPrecisionForAnnotators(annotators_answer)
     util.printRecallForAnnotators(annotators_answer)
+    util.printF1ScoreForAnnotators(annotators_answer)
     
+    util.printAUCForAnnotators(roc_auc)
     util.plotRocCurve(fpr, tpr, roc_auc)
     
 if __name__ == "__main__":
