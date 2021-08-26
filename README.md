@@ -28,3 +28,11 @@ Please install the following packages first.
   conda install numpy
   conda install pandas
   ```  
+
+## Usage
+
+To run the project, please use "python main.py" command from the same directory.
+
+It will show the result of the tasks one by one. The images will be shown one by one and you need to close the image to continue for further tasks.
+
+You can also run the QualityMatch_CodeChallenge_jupyterNote.ipynb to see the results.
